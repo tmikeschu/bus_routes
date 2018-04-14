@@ -2,8 +2,10 @@
 
 require 'rails_helper'
 require 'csv'
+require 'fp/fp'
 
 RSpec.describe BusRouteImporter do
+  include FP
   describe '.main' do
     it 'adds riders, bus_routes, and bus_stops to the db' do
       test_rake_task = lambda do
