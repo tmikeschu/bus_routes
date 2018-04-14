@@ -3,6 +3,12 @@
 This starter API provides an ETL rake task to load CSV data into a PostgreSQL
 database.
 
+## Installation
+
+1. Clone this repository and `cd` into it.
+2. Run `bundle install && rake db:{create,migrate}`
+3. Run `rspec`
+
 ## Importing CSV data
 
 To import CSV data into the database, run the following rake task:
