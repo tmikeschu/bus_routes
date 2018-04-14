@@ -1,24 +1,67 @@
-# README
+# Bus Route Importer
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This starter API provides an ETL rake task to load CSV data into a PostgreSQL
+database.
 
-Things you may want to cover:
+## Importing CSV data
 
-* Ruby version
+To import CSV data into the database, run the following rake task:
 
-* System dependencies
+```shell
+rails db:import_bus_route_data <FILENAME>
+```
 
-* Configuration
+...where `<FILENAME>` is a path to a `.csv` file relative to the current
+directory of your terminal session (most likely the root of the rails project).
 
-* Database creation
+The rake task takes care of error guarding and loading the CSV file into a
+native Ruby `CSV::Table` object. This table is then passed to
+`BusRouteImporter.main`, which handles the the database logic.
 
-* Database initialization
+If an updated form of the same CSV is passed, existing records are updated.
 
-* How to run the test suite
+### The CSV "duck-type" includes the following columns:
 
-* Services (job queues, cache servers, search engines, etc.)
+```
+Last Name
+First Name
+Pickup Route
+Pickup Time
+Pickup Bus Stop
+Dropoff Route
+Dropoff Time
+Dropoff Bus Stop
+```
 
-* Deployment instructions
+Which are converted to:
 
-* ...
+```
+last_name
+first_name
+pickup_route
+pickup_time
+pickup_bus_stop
+dropoff_route
+dropoff_time
+dropoff_bus Stop
+```
+
+## Database Schema
+
+The CSV data are used to create three models: `Rider`, `BusRoute`, and
+`BusStop`.
+
+* A `BusStop` has many `BusRoute`s through `RouteStop`s
+* A `BusRoute` has many `BusStop`s through `RouteStop`s
+* A `Rider` has one pickup `RouteStop`
+* A `Rider` has one dropoff `RouteStop`
+* A `RouteStop` has many `Rider`s
+
+![](public/db_schema.png)
+
+## Functional Programming Style
+
+The `import_bus_route_data` task and `BusRouteImporter` employ a functional
+programming approach, namely creating a pipeline of `lambda`s (composing left to
+right) whose return values are passed to the next `lambda`. See `lib/fp/fp` for
+the source code.
