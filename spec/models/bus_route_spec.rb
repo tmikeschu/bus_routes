@@ -7,4 +7,5 @@ RSpec.describe BusRoute do
   it { should have_many(:bus_stops).through(:route_stops) }
   it { should have_db_column(:uuid) }
   it { should validate_presence_of(:uuid) }
+  it { should validate_uniqueness_of(:uuid) }
 end
