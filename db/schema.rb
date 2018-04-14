@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180414155411) do
+ActiveRecord::Schema.define(version: 20180414160849) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,6 +27,17 @@ ActiveRecord::Schema.define(version: 20180414155411) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "riders", force: :cascade do |t|
+    t.string "first_name"
+    t.string "last_name"
+    t.bigint "pickup_route_stop_id"
+    t.bigint "dropoff_route_stop_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dropoff_route_stop_id"], name: "index_riders_on_dropoff_route_stop_id"
+    t.index ["pickup_route_stop_id"], name: "index_riders_on_pickup_route_stop_id"
+  end
+
   create_table "route_stops", force: :cascade do |t|
     t.integer "bus_stop_id"
     t.integer "bus_route_id"
@@ -36,4 +47,6 @@ ActiveRecord::Schema.define(version: 20180414155411) do
     t.index ["bus_stop_id", "bus_route_id"], name: "index_route_stops_on_bus_stop_id_and_bus_route_id"
   end
 
+  add_foreign_key "riders", "route_stops", column: "dropoff_route_stop_id"
+  add_foreign_key "riders", "route_stops", column: "pickup_route_stop_id"
 end
