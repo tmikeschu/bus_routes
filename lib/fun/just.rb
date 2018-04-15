@@ -7,11 +7,13 @@ module FUN
   class Just < Monad
     include Helpers
 
-    def map(fun)
+    def map(fun = identity)
+      return Just.of(yield(value)) if block_given?
       Just.of(fun&.call(value))
     end
 
-    def flat_map(fun)
+    def flat_map(fun = identity)
+      return yield(value) if block_given?
       fun&.call(value)
     end
 

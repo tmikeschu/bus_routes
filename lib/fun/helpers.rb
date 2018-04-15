@@ -23,11 +23,15 @@ module FUN
     end
 
     def map
-      ->(fun) { ->(mapper) { mapper.map(fun) } }
+      ->(fun) { ->(mapper) { mapper.map(&fun) } }
     end
 
     def flat_map
-      ->(fun) { ->(flat_mapper) { flat_mapper.flat_map(fun) } }
+      ->(fun) { ->(flat_mapper) { flat_mapper.flat_map(&fun) } }
+    end
+
+    def reduce(init = 0)
+      ->(fun) { ->(reducer) { reducer.reduce(init, &fun) } }
     end
 
     def try_catch

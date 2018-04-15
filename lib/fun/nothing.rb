@@ -7,11 +7,11 @@ module FUN
   class Nothing < Monad
     include Helpers
 
-    def map(_)
+    def map(_ = identity)
       Nothing.of(value)
     end
 
-    def flat_map(_)
+    def flat_map(_ = identity)
       Nothing.of(value)
     end
 
