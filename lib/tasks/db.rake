@@ -1,29 +1,33 @@
 # frozen_string_literal: true
 
+require 'csv'
+require 'fun/fun'
+include FUN::Helpers
 namespace :db do
   desc 'ETL csv file to BusRoute, BusStop, and Rider models'
-  task import_bus_route_data: :environment do
-    unless filepath = ARGV[1]
-      puts 'Please provide a filepath'
-      next
-    end
-
-    require 'csv'
-    require 'fp/fp'
-    include FP
-
+  task :import_bus_route_data, [:filepath] => [:environment] do |_, args|
     read = lambda { |filename|
       CSV.read(filename,
                headers: true,
                header_converters: :symbol)
     }
-    main = ->(rows) { BusRouteImporter.main(rows) }
 
-    pipe.call(read, main).call(filepath)
-  rescue StandardError => error
-    message = "Error importing data: #{error}"
-    Rails.logger.error message
-    puts error.backtrace
-    puts message
+    error_message = pipe.call(
+      FUN::Maybe.from_nil,
+      fold.call(nothing: ->(_) { 'Please provide a filepath' },
+                just: ->(e) { ["Error: #{e}", e.backtrace[0]] })
+    )
+
+    import_file = pipe.call(
+      FUN::Maybe.from_nil,
+      flat_map.call(->(filepath) { try_catch.call(-> { read.call(filepath) }) }),
+      map.call(BusRouteImporter.main),
+      fold.call(
+        nothing: error_message
+      )
+    )
+
+    puts result = import_file.call(args[:filepath])
+    result
   end
 end
