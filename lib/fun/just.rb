@@ -12,7 +12,7 @@ module FUN
     end
 
     def flat_map(fun)
-      fun&.(value)
+      fun&.call(value)
     end
 
     def fold(just: identity, nothing: nil)
