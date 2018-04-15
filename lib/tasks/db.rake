@@ -3,6 +3,7 @@
 require 'csv'
 require 'fun/fun'
 include FUN::Helpers
+
 namespace :db do
   desc 'ETL csv file to BusRoute, BusStop, and Rider models'
   task :import_bus_route_data, [:filepath] => [:environment] do |_, args|
@@ -21,13 +22,13 @@ namespace :db do
     import_file = pipe.call(
       FUN::Maybe.from_nil,
       flat_map.call(->(filepath) { try_catch.call(-> { read.call(filepath) }) }),
+      map.call(->(rows) { rows.map(&:to_h) }),
       map.call(BusRouteImporter.main),
       fold.call(
         nothing: error_message
       )
     )
 
-    puts result = import_file.call(args[:filepath])
-    result
+    pp import_file.call(args[:filepath])
   end
 end

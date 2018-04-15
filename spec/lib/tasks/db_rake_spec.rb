@@ -4,14 +4,15 @@ require 'rails_helper'
 require 'rake'
 
 RSpec.describe "Rake::Task['db:import_bus_route_data']" do
-  # WHY DOES THE STDOUT STAY EMPTY STRING WHEN TESTS RUN TOGETHER?
-  def task
-    Rake::Task['db:import_bus_route_data']
-  end
+  let(:task) { Rake::Task['db:import_bus_route_data'] }
 
   before do
     load './lib/tasks/db.rake'
     Rake::Task.define_task(:environment)
+  end
+
+  after do
+    Rake::Task.clear
   end
 
   it 'returns an error for no file path' do
@@ -31,6 +32,19 @@ RSpec.describe "Rake::Task['db:import_bus_route_data']" do
 
   it 'does not return an error for a good path' do
     expected = /Error:/
-    expect { task.invoke './spec/bus_route_test_data.csv' }.to_not output(expected).to_stdout
+    expect { task.invoke './spec/fixtures/bus_route_data_test.csv' }
+      .to_not output(expected).to_stdout
+  end
+
+  it 'adds records to the db' do
+    expect { task.invoke './spec/fixtures/bus_route_data_test.csv' }
+      .to change { Rider.count }
+      .by(6)
+      .and change { BusStop.count }
+      .by(4)
+      .and change { BusRoute.count }
+      .by(6)
+      .and change { RouteStop.count }
+      .by(8)
   end
 end
