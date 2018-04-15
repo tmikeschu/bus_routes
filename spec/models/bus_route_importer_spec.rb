@@ -1,30 +1,29 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'csv'
-require 'fp/fp'
+require 'rake'
 
 RSpec.describe BusRouteImporter do
-  include FP
   describe '.main' do
     it 'adds riders, bus_routes, and bus_stops to the db' do
-      test_rake_task = lambda do
-        read = lambda { |filename|
-          CSV.read(filename,
-                   headers: true,
-                   header_converters: :symbol)[0...1]
-        }
-        main = ->(rows) { BusRouteImporter.main(rows) }
-        pipe.call(read, main).call('./db/bus_route_data.csv')
-      end
-
+      # expectations based on 5 rows in spec/bus_route_test_data.csv
       expect { test_rake_task.call }
         .to change { Rider.count }
-        .by(1)
+        .by(5)
         .and change { BusStop.count }
-        .by(1)
+        .by(4)
         .and change { BusRoute.count }
-        .by(2)
+        .by(6)
+    end
+  end
+
+  def test_rake_task
+    lambda do
+      load './lib/tasks/db.rake'
+      Rake::Task.define_task(:environment)
+
+      Rake::Task['db:import_bus_route_data']
+        .invoke './spec/bus_route_test_data.csv'
     end
   end
 end
