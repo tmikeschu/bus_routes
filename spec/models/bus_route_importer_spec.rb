@@ -5,6 +5,8 @@ require 'fixtures/test_hash_array'
 
 RSpec.describe BusRouteImporter do
   describe '.main' do
+    before { allow($stdout).to receive(:write).and_return(nil) }
+
     describe 'for one row of data' do
       let(:data) { TEST_HASH_ARRAY[0...1] }
       it 'adds a rider, bus_routes, route_stops, and a bus_stop to the db' do

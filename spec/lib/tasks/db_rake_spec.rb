@@ -9,6 +9,7 @@ RSpec.describe "Rake::Task['db:import_bus_route_data']" do
   before do
     load './lib/tasks/db.rake'
     Rake::Task.define_task(:environment)
+    allow($stdout).to receive(:write).and_return(nil)
   end
 
   after do
