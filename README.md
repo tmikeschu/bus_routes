@@ -3,6 +3,8 @@
 This starter API provides an ETL rake task to load CSV data into a PostgreSQL
 database.
 
+![](https://media.giphy.com/media/J1ZajKJKzD0PK/giphy.gif)
+
 ## Installation
 
 1. Clone this repository and `cd` into it.
