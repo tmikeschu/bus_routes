@@ -57,5 +57,48 @@ RSpec.describe BusRouteImporter do
           .by(8)
       end
     end
+
+    describe 'for existing route stops' do
+      let(:data) do
+        [TEST_HASH_ARRAY[0],
+         TEST_HASH_ARRAY[0].merge(pickup_time: '5:00 PM')]
+      end
+
+      before do
+        described_class.main.call([data[0]])
+      end
+
+      it 'updates stop time' do
+        route = BusRoute.find_by(uuid: data[0][:pickup_route])
+        stop  = BusStop.find_by(address: data[0][:pickup_bus_stop])
+        expect { described_class.main.call(data) }
+          .to change { RouteStop.find_by(bus_stop: stop, bus_route: route).stop_time.strftime('%I:%M %p') }
+          .from('12:26 PM')
+          .to('05:00 PM')
+      end
+    end
+
+    describe 'for existing riders' do
+      let(:data) do
+        [TEST_HASH_ARRAY[0],
+         TEST_HASH_ARRAY[0].merge(pickup_route: 'LLMB10MID')]
+      end
+
+      before do
+        described_class.main.call([data[0]])
+      end
+
+      it 'updates dropoff and pickup spots' do
+        expect { described_class.main.call(data) }
+          .to change {
+                Rider.find_by(
+                  first_name: data[0][:first_name],
+                  last_name: data[0][:last_name]
+                ).pickup_route_stop
+              }
+          .and change { RouteStop.first.pickups.count }
+          .by(-1)
+      end
+    end
   end
 end
