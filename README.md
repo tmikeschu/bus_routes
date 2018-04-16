@@ -14,7 +14,7 @@ database.
 To import CSV data into the database, run the following rake task:
 
 ```shell
-rails db:import_bus_route_data <FILENAME>
+rails db:import_bus_route_data[<FILENAME>]
 ```
 
 ...where `<FILENAME>` is a path to a `.csv` file relative to the current
@@ -68,6 +68,9 @@ The CSV data are used to create three models: `Rider`, `BusRoute`, and
 ## Functional Programming Style
 
 The `import_bus_route_data` task and `BusRouteImporter` employ a functional
-programming approach, namely creating a pipeline of `lambda`s (composing left to
-right) whose return values are passed to the next `lambda`. See `lib/fp/fp` for
-the source code.
+programming approach because scope of the task is to take an input and produce
+some ultimate output, in this case a database writing side effect. One pattern
+you'll see involves creating pipeline of `lambda`s (composing left to right)
+whose return values are passed to the next `lambda`. See `lib/fun` for the
+source code. You'll also find some wrapping data structures like Maybe Just, and
+Nothing, which facilitate a more declarative style of chaining functions.
