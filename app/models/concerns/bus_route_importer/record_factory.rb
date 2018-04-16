@@ -17,13 +17,15 @@ module BusRouteImporter::RecordFactory
 
   def find_or_create_bus_stop
     lambda do |row|
-      STOP_TYPES.each do |type|
+      row.merge(STOP_TYPES.reduce({}) do |acc, type|
         row_key = "#{type}_bus_stop"
+
         if stop = BusStop.find_or_create_by(bus_stop_params(row, row_key))
-          row["#{row_key}_id".to_sym] = stop.id
+          acc.merge("#{row_key}_id".to_sym => stop.id)
+        else
+          acc
         end
-      end
-      row
+      end)
     end
   end
 
@@ -33,13 +35,14 @@ module BusRouteImporter::RecordFactory
 
   def find_or_create_bus_route
     lambda do |row|
-      STOP_TYPES.each do |type|
+      row.merge(STOP_TYPES.reduce({}) do |acc, type|
         row_key = "#{type}_route"
         if route = BusRoute.find_or_create_by(bus_route_params(row, row_key))
-          row["#{row_key}_id".to_sym] = route.id
+          acc.merge("#{row_key}_id".to_sym => route.id)
+        else
+          acc
         end
-      end
-      row
+      end)
     end
   end
 
